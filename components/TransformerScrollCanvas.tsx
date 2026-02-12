@@ -16,14 +16,15 @@ export default function TransformerScrollCanvas({
 }: TransformerScrollCanvasProps) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const imagesRef = useRef<HTMLImageElement[]>([]);
-    const [imagesLoaded, setImagesLoaded] = useState(false);
+    const [initialFrameReady, setInitialFrameReady] = useState(false);
     const [loadProgress, setLoadProgress] = useState(0);
     const currentFrameRef = useRef(0);
 
-    // Preload all frame images
+    // Progressive image loading - show first frame immediately, load rest in background
     useEffect(() => {
-        const images: HTMLImageElement[] = [];
+        const images: HTMLImageElement[] = new Array(totalFrames);
         let loadedCount = 0;
+        imagesRef.current = images;
 
         const loadImage = (index: number): Promise<void> => {
             return new Promise((resolve, reject) => {
@@ -31,39 +32,63 @@ export default function TransformerScrollCanvas({
                 img.onload = () => {
                     loadedCount++;
                     setLoadProgress(Math.round((loadedCount / totalFrames) * 100));
+                    
+                    // Show canvas as soon as first frame loads
+                    if (index === 0) {
+                        setInitialFrameReady(true);
+                    }
                     resolve();
                 };
-                img.onerror = reject;
-                // Format: frame_0001.webp, frame_0002.webp, etc.
+                img.onerror = () => {
+                    // Don't block on errors, just resolve
+                    loadedCount++;
+                    setLoadProgress(Math.round((loadedCount / totalFrames) * 100));
+                    resolve();
+                };
                 const frameNumber = String(index + 1).padStart(4, '0');
                 img.src = `${imageFolderPath}/frame_${frameNumber}.webp`;
                 images[index] = img;
             });
         };
 
-        // Load all images
-        Promise.all(
-            Array.from({ length: totalFrames }, (_, i) => loadImage(i))
-        )
-            .then(() => {
-                imagesRef.current = images;
-                setImagesLoaded(true);
-            })
-            .catch((error) => {
-                console.error('Error loading frame images:', error);
-            });
+        // Load first frame immediately (priority)
+        loadImage(0).then(() => {
+            // Load remaining frames in batches for better performance
+            const batchSize = 5;
+            const loadBatch = async (startIndex: number) => {
+                const batch = [];
+                for (let i = startIndex; i < Math.min(startIndex + batchSize, totalFrames); i++) {
+                    if (i !== 0) { // Skip first frame, already loaded
+                        batch.push(loadImage(i));
+                    }
+                }
+                await Promise.all(batch);
+                
+                // Load next batch if there are more frames
+                if (startIndex + batchSize < totalFrames) {
+                    // Use requestIdleCallback for non-blocking loading
+                    if ('requestIdleCallback' in window) {
+                        (window as any).requestIdleCallback(() => loadBatch(startIndex + batchSize));
+                    } else {
+                        setTimeout(() => loadBatch(startIndex + batchSize), 10);
+                    }
+                }
+            };
+            
+            loadBatch(1);
+        });
 
         // Cleanup
         return () => {
             images.forEach((img) => {
-                img.src = '';
+                if (img) img.src = '';
             });
         };
     }, [totalFrames, imageFolderPath]);
 
     // Handle canvas sizing and rendering
     useEffect(() => {
-        if (!imagesLoaded || !canvasRef.current) return;
+        if (!initialFrameReady || !canvasRef.current) return;
 
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
@@ -89,9 +114,19 @@ export default function TransformerScrollCanvas({
         };
 
         const drawFrame = (frameIndex: number) => {
-            if (!ctx || !imagesRef.current[frameIndex]) return;
+            // Fall back to closest available frame if current isn't loaded yet
+            let img = imagesRef.current[frameIndex];
+            if (!img || !img.complete) {
+                // Find closest loaded frame
+                for (let i = frameIndex; i >= 0; i--) {
+                    if (imagesRef.current[i]?.complete) {
+                        img = imagesRef.current[i];
+                        break;
+                    }
+                }
+            }
+            if (!ctx || !img) return;
 
-            const img = imagesRef.current[frameIndex];
             const canvasWidth = canvas.width / (window.devicePixelRatio || 1);
             const canvasHeight = canvas.height / (window.devicePixelRatio || 1);
 
@@ -130,11 +165,11 @@ export default function TransformerScrollCanvas({
         return () => {
             window.removeEventListener('resize', resizeCanvas);
         };
-    }, [imagesLoaded]);
+    }, [initialFrameReady]);
 
     // Update frame based on scroll progress
     useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-        if (!imagesLoaded || !canvasRef.current) return;
+        if (!initialFrameReady || !canvasRef.current) return;
 
         // Map scroll progress [0..1] to frame index [0..totalFrames-1]
         const frameIndex = Math.min(
@@ -150,7 +185,16 @@ export default function TransformerScrollCanvas({
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
 
-            const img = imagesRef.current[frameIndex];
+            // Try to get requested frame, fall back to closest loaded frame
+            let img = imagesRef.current[frameIndex];
+            if (!img || !img.complete) {
+                for (let i = frameIndex; i >= 0; i--) {
+                    if (imagesRef.current[i]?.complete) {
+                        img = imagesRef.current[i];
+                        break;
+                    }
+                }
+            }
             if (!img) return;
 
             const canvasWidth = canvas.width / (window.devicePixelRatio || 1);
@@ -184,21 +228,28 @@ export default function TransformerScrollCanvas({
 
     return (
         <div className="absolute inset-0 w-full h-full bg-base-dark z-0">
-            {/* Loading indicator */}
-            {!imagesLoaded && (
+            {/* Initial loading indicator - only shows until first frame loads */}
+            {!initialFrameReady && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                    <div className="font-orbitron text-2xl md:text-4xl text-white mb-4 tracking-wider">
-                        LOADING SEQUENCE
+                    <div className="font-orbitron text-xl md:text-2xl text-white mb-4 tracking-wider animate-pulse">
+                        INITIALIZING
                     </div>
-                    <div className="w-64 h-1 bg-neutral-carbon rounded-full overflow-hidden">
+                    <div className="w-48 h-0.5 bg-neutral-carbon rounded-full overflow-hidden relative">
+                        <div className="absolute h-full w-1/3 bg-accent-metal animate-pulse" />
+                    </div>
+                </div>
+            )}
+
+            {/* Background loading progress - subtle indicator in corner */}
+            {initialFrameReady && loadProgress < 100 && (
+                <div className="absolute bottom-4 right-4 z-20 flex items-center gap-2 bg-black/50 px-3 py-1.5 rounded backdrop-blur-sm">
+                    <div className="w-16 h-0.5 bg-neutral-carbon rounded-full overflow-hidden">
                         <div
-                            className="h-full bg-accent-metal transition-all duration-300"
+                            className="h-full bg-accent-metal/70 transition-all duration-300"
                             style={{ width: `${loadProgress}%` }}
                         />
                     </div>
-                    <div className="font-rajdhani text-lg text-neutral-carbon mt-2">
-                        {loadProgress}%
-                    </div>
+                    <span className="font-rajdhani text-xs text-neutral-400">{loadProgress}%</span>
                 </div>
             )}
 
@@ -212,7 +263,7 @@ export default function TransformerScrollCanvas({
             {/* Screen reader description */}
             <div className="sr-only">
                 A cinematic transformation sequence showing a mechanical truck transforming
-                into a humanoid robot across 204 frames. The sequence is controlled by
+                into a humanoid robot across {totalFrames} frames. The sequence is controlled by
                 scrolling through the page.
             </div>
         </div>
