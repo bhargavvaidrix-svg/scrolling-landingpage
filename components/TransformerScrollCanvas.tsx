@@ -230,11 +230,11 @@ export default function TransformerScrollCanvas({
         <div className="absolute inset-0 w-full h-full bg-base-dark z-0">
             {/* Initial loading indicator - only shows until first frame loads */}
             {!initialFrameReady && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
-                    <div className="font-orbitron text-xl md:text-2xl text-white mb-4 tracking-wider animate-pulse">
+                <div className="absolute inset-0 flex flex-col items-center justify-center z-10 px-4">
+                    <div className="font-orbitron text-lg sm:text-xl md:text-2xl text-white mb-3 sm:mb-4 tracking-wider animate-pulse">
                         INITIALIZING
                     </div>
-                    <div className="w-48 h-0.5 bg-neutral-carbon rounded-full overflow-hidden relative">
+                    <div className="w-32 sm:w-48 h-0.5 bg-neutral-carbon rounded-full overflow-hidden relative">
                         <div className="absolute h-full w-1/3 bg-accent-metal animate-pulse" />
                     </div>
                 </div>
@@ -242,14 +242,14 @@ export default function TransformerScrollCanvas({
 
             {/* Background loading progress - subtle indicator in corner */}
             {initialFrameReady && loadProgress < 100 && (
-                <div className="absolute bottom-4 right-4 z-20 flex items-center gap-2 bg-black/50 px-3 py-1.5 rounded backdrop-blur-sm">
-                    <div className="w-16 h-0.5 bg-neutral-carbon rounded-full overflow-hidden">
+                <div className="absolute bottom-16 sm:bottom-4 right-4 z-20 flex items-center gap-2 bg-black/50 px-2 sm:px-3 py-1 sm:py-1.5 rounded backdrop-blur-sm">
+                    <div className="w-12 sm:w-16 h-0.5 bg-neutral-carbon rounded-full overflow-hidden">
                         <div
                             className="h-full bg-accent-metal/70 transition-all duration-300"
                             style={{ width: `${loadProgress}%` }}
                         />
                     </div>
-                    <span className="font-rajdhani text-xs text-neutral-400">{loadProgress}%</span>
+                    <span className="font-rajdhani text-[10px] sm:text-xs text-neutral-400">{loadProgress}%</span>
                 </div>
             )}
 

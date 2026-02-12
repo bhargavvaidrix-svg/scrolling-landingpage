@@ -42,7 +42,7 @@ export default function Footer() {
 
                     {/* Copyright */}
                     <div className="font-rajdhani text-sm text-neutral-600">
-                        © {currentYear} <span className="text-accent-plasma/50">{"///"}</span> ALL RIGHTS RESERVED
+                        © {currentYear} <span className="text-accent-plasma/50"></span> ALL RIGHTS RESERVED
                     </div>
                 </div>
 

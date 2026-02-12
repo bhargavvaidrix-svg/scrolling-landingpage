@@ -36,10 +36,10 @@ function DiagnosticItem({
                 opacity: diagnosticOpacity,
                 x: diagnosticX,
             }}
-            className={`absolute top-1/2 -translate-y-1/2 ${index % 2 === 0 ? 'left-8 md:left-12' : 'right-8 md:right-12'
+            className={`absolute top-1/2 -translate-y-1/2 ${index % 2 === 0 ? 'left-4 sm:left-6 md:left-12' : 'right-4 sm:right-6 md:right-12'
                 }`}
         >
-            <div className="font-orbitron text-lg md:text-xl lg:text-2xl font-bold text-white tracking-wider">
+            <div className="font-orbitron text-sm sm:text-base md:text-xl lg:text-2xl font-bold text-white tracking-wider max-w-[45vw] sm:max-w-none">
                 {item.text}
             </div>
         </motion.div>
@@ -162,18 +162,18 @@ export default function TransformerExperience({
                 className="absolute inset-0"
             >
                 {/* Top-left title */}
-                <div className="absolute top-8 left-8 md:top-12 md:left-12">
-                    <h1 className="font-orbitron text-2xl md:text-4xl lg:text-5xl font-bold tracking-wider text-white">
+                <div className="absolute top-16 sm:top-20 md:top-24 left-4 sm:left-6 md:left-12 max-w-[85vw] sm:max-w-none">
+                    <h1 className="font-orbitron text-xl sm:text-2xl md:text-4xl lg:text-5xl font-bold tracking-wider text-white leading-tight">
                         {HUD_COPY.hero.title}
                     </h1>
-                    <p className="font-rajdhani text-sm md:text-base lg:text-lg text-neutral-carbon mt-2 tracking-wide">
+                    <p className="font-rajdhani text-xs sm:text-sm md:text-base lg:text-lg text-neutral-carbon mt-1 sm:mt-2 tracking-wide">
                         {HUD_COPY.hero.subtitle}
                     </p>
                 </div>
 
                 {/* Bottom-right system readout */}
-                <div className="absolute bottom-8 right-8 md:bottom-12 md:right-12 text-right">
-                    <div className="font-orbitron text-xs md:text-sm text-accent-metal tracking-widest">
+                <div className="absolute bottom-6 sm:bottom-8 md:bottom-12 right-4 sm:right-6 md:right-12 text-right">
+                    <div className="font-orbitron text-[10px] sm:text-xs md:text-sm text-accent-metal tracking-widest">
                         {HUD_COPY.hero.systemReadout}
                     </div>
                 </div>
@@ -195,15 +195,15 @@ export default function TransformerExperience({
                     opacity: arrivalOpacity,
                     y: arrivalY,
                 }}
-                className="absolute inset-0 flex flex-col items-center justify-center text-center px-8"
+                className="absolute inset-0 flex flex-col items-center justify-center text-center px-4 sm:px-6 md:px-8"
             >
                 <h2
-                    className="font-orbitron text-3xl md:text-5xl lg:text-7xl font-black tracking-wider text-white mb-4"
+                    className="font-orbitron text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-black tracking-wider text-white mb-2 sm:mb-4 leading-tight"
                     style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8), 4px 4px 8px rgba(0, 0, 0, 0.6)' }}
                 >
                     {HUD_COPY.arrival.title}
                 </h2>
-                <p className="font-rajdhani text-lg md:text-xl lg:text-2xl text-white tracking-wide mb-8"
+                <p className="font-rajdhani text-base sm:text-lg md:text-xl lg:text-2xl text-white tracking-wide mb-6 sm:mb-8"
                     style={{ textShadow: '2px 2px 4px rgba(0, 0, 0, 0.8), 4px 4px 8px rgba(0, 0, 0, 0.6)' }}
                 >
                     {HUD_COPY.arrival.credit}
@@ -212,7 +212,7 @@ export default function TransformerExperience({
                 {/* CTA - pointer-events-auto to make it clickable */}
                 <a
                     href={HUD_COPY.arrival.ctaUrl}
-                    className="pointer-events-auto bg-accent-metal text-white font-orbitron text-sm md:text-base px-8 py-3 border-2 border-accent-metal text-accent-metal"
+                    className="pointer-events-auto bg-accent-metal text-white font-orbitron text-xs sm:text-sm md:text-base px-6 sm:px-8 py-2.5 sm:py-3 border-2 border-accent-metal hover:bg-transparent hover:text-accent-metal transition-colors duration-300 active:scale-95"
                 >
                     {HUD_COPY.arrival.cta}
                 </a>

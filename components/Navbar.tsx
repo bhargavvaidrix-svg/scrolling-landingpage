@@ -30,11 +30,11 @@ export default function Navbar() {
             className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-500 ${isInHeroSection ? 'bg-transparent' : 'bg-black/90 backdrop-blur-md'
                 }`}
         >
-            <div className="max-w-7xl mx-auto px-6 md:px-8 py-4 flex items-center justify-between">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 py-3 md:py-4 flex items-center justify-between">
                 {/* Logo/Brand */}
                 <div
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="font-orbitron text-2xl md:text-2xl font-bold tracking-wider text-white cursor-pointer hover:text-accent-plasma transition-colors duration-300"
+                    className="font-orbitron text-lg sm:text-xl md:text-2xl font-bold tracking-wider text-white cursor-pointer hover:text-accent-plasma transition-colors duration-300"
                 >
                     TRANSFORMER
                 </div>
@@ -42,7 +42,7 @@ export default function Navbar() {
                 {/* CTA */}
                 <a
                     href="#"
-                    className="font-rajdhani text-lg md:text-xl px-4 py-2 text-white hover:text-accent-metal transition-colors duration-300 tracking-wide uppercase focus:outline-none focus:ring-2 focus:ring-accent-metal focus:ring-offset-2 focus:ring-offset-transparent rounded"
+                    className="font-rajdhani text-sm sm:text-base md:text-xl px-3 sm:px-4 py-1.5 sm:py-2 text-white hover:text-accent-metal transition-colors duration-300 tracking-wide uppercase focus:outline-none focus:ring-2 focus:ring-accent-metal focus:ring-offset-2 focus:ring-offset-transparent rounded"
                 >
                     PORTFOLIO
                 </a>

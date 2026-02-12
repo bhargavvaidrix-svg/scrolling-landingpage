@@ -30,8 +30,8 @@ export default function Home() {
                 className="relative"
                 style={{ height: SEQUENCE_CONFIG.scrollLength }}
             >
-                {/* Sticky viewport - full screen */}
-                <div className="sticky top-0 h-[120vh] w-full overflow-hidden">
+                {/* Sticky viewport - full screen, adjusted for mobile */}
+                <div className="sticky top-0 h-screen md:h-[120vh] w-full overflow-hidden">
                     {/* Canvas layer (z-0) */}
                     <TransformerScrollCanvas
                         scrollYProgress={scrollYProgress}
