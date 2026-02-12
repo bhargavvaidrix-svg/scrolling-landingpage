@@ -5,6 +5,47 @@ import { HUD_PHASES, HUD_COPY, SEQUENCE_CONFIG } from '@/data/transformerData';
 import { useState, useRef, useEffect } from 'react';
 import { Volume2, VolumeX } from 'lucide-react';
 
+// Separate component to properly use hooks for each diagnostic item
+function DiagnosticItem({
+    item,
+    index,
+    scrollYProgress,
+}: {
+    item: { progress: number; duration: number; text: string };
+    index: number;
+    scrollYProgress: MotionValue<number>;
+}) {
+    const startFade = item.progress - 0.02;
+    const endFade = item.progress + item.duration;
+
+    const diagnosticOpacity = useTransform(
+        scrollYProgress,
+        [startFade, item.progress, endFade, endFade + 0.02],
+        [0, 1, 1, 0]
+    );
+
+    const diagnosticX = useTransform(
+        scrollYProgress,
+        [startFade, item.progress],
+        [index % 2 === 0 ? -30 : 30, 0]
+    );
+
+    return (
+        <motion.div
+            style={{
+                opacity: diagnosticOpacity,
+                x: diagnosticX,
+            }}
+            className={`absolute top-1/2 -translate-y-1/2 ${index % 2 === 0 ? 'left-8 md:left-12' : 'right-8 md:right-12'
+                }`}
+        >
+            <div className="font-orbitron text-lg md:text-xl lg:text-2xl font-bold text-white tracking-wider">
+                {item.text}
+            </div>
+        </motion.div>
+    );
+}
+
 interface TransformerExperienceProps {
     scrollYProgress: MotionValue<number>;
 }
@@ -139,38 +180,14 @@ export default function TransformerExperience({
             </motion.div>
 
             {/* Transformation Phase (30-75%) - Fleeting diagnostics */}
-            {HUD_COPY.transformation.map((item, index) => {
-                const startFade = item.progress - 0.02;
-                const endFade = item.progress + item.duration;
-
-                const diagnosticOpacity = useTransform(
-                    scrollYProgress,
-                    [startFade, item.progress, endFade, endFade + 0.02],
-                    [0, 1, 1, 0]
-                );
-
-                const diagnosticX = useTransform(
-                    scrollYProgress,
-                    [startFade, item.progress],
-                    [index % 2 === 0 ? -30 : 30, 0]
-                );
-
-                return (
-                    <motion.div
-                        key={`diagnostic-${index}`}
-                        style={{
-                            opacity: diagnosticOpacity,
-                            x: diagnosticX,
-                        }}
-                        className={`absolute top-1/2 -translate-y-1/2 ${index % 2 === 0 ? 'left-8 md:left-12' : 'right-8 md:right-12'
-                            }`}
-                    >
-                        <div className="font-orbitron text-lg md:text-xl lg:text-2xl font-bold text-white tracking-wider">
-                            {item.text}
-                        </div>
-                    </motion.div>
-                );
-            })}
+            {HUD_COPY.transformation.map((item, index) => (
+                <DiagnosticItem
+                    key={`diagnostic-${index}`}
+                    item={item}
+                    index={index}
+                    scrollYProgress={scrollYProgress}
+                />
+            ))}
 
             {/* Arrival Phase (75-100%) */}
             <motion.div

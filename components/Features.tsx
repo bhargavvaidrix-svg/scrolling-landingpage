@@ -10,7 +10,7 @@ export default function Features() {
                 <div className="w-24 h-1 bg-gradient-to-r from-transparent via-accent-plasma to-transparent mx-auto mb-8" />
 
                 <p className="font-rajdhani text-lg md:text-xl text-center text-neutral-400 mb-20 max-w-3xl mx-auto border-l-2 border-accent-plasma/50 pl-6 italic">
-                    "A deep dive into the technical challenges and creative solutions behind this cinematic scrollytelling experience."
+                    &ldquo;A deep dive into the technical challenges and creative solutions behind this cinematic scrollytelling experience.&rdquo;
                 </p>
 
                 <div className="space-y-24">
