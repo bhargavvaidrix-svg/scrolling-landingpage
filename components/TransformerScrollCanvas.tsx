@@ -23,16 +23,12 @@ export default function TransformerScrollCanvas({
     // Progressive image loading - show first frame immediately, load rest in background
     useEffect(() => {
         const images: HTMLImageElement[] = new Array(totalFrames);
-        let loadedCount = 0;
         imagesRef.current = images;
 
         const loadImage = (index: number): Promise<void> => {
             return new Promise((resolve, reject) => {
                 const img = new Image();
                 img.onload = () => {
-                    loadedCount++;
-                    setLoadProgress(Math.round((loadedCount / totalFrames) * 100));
-                    
                     // Show canvas as soon as first frame loads
                     if (index === 0) {
                         setInitialFrameReady(true);
@@ -41,8 +37,6 @@ export default function TransformerScrollCanvas({
                 };
                 img.onerror = () => {
                     // Don't block on errors, just resolve
-                    loadedCount++;
-                    setLoadProgress(Math.round((loadedCount / totalFrames) * 100));
                     resolve();
                 };
                 const frameNumber = String(index + 1).padStart(4, '0');
@@ -85,6 +79,32 @@ export default function TransformerScrollCanvas({
             });
         };
     }, [totalFrames, imageFolderPath]);
+
+    // UI loading indicator - fake 0 → 100% over ~1.5s once first frame is ready
+    useEffect(() => {
+        if (!initialFrameReady) return;
+
+        setLoadProgress(0);
+        const duration = 1500; // 1.5s
+        const start = performance.now();
+        let frameId: number;
+
+        const tick = (now: number) => {
+            const elapsed = now - start;
+            const progress = Math.min(100, (elapsed / duration) * 100);
+            setLoadProgress(progress);
+
+            if (elapsed < duration) {
+                frameId = requestAnimationFrame(tick);
+            }
+        };
+
+        frameId = requestAnimationFrame(tick);
+
+        return () => {
+            if (frameId) cancelAnimationFrame(frameId);
+        };
+    }, [initialFrameReady]);
 
     // Handle canvas sizing and rendering
     useEffect(() => {
@@ -253,7 +273,9 @@ export default function TransformerScrollCanvas({
                             style={{ width: `${loadProgress}%` }}
                         />
                     </div>
-                    <span className="font-rajdhani text-[10px] sm:text-xs text-neutral-400">{loadProgress}%</span>
+                    <span className="font-rajdhani text-[10px] sm:text-xs text-neutral-400">
+                        {Math.round(loadProgress)}%
+                    </span>
                 </div>
             )}
 
