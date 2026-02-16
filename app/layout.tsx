@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Orbitron, Rajdhani } from "next/font/google";
 import "./globals.css";
+import SmoothScroll from "@/components/SmoothScroll";
 
 // Font configurations
 const orbitron = Orbitron({
@@ -37,7 +38,9 @@ export default function RootLayout({
     return (
         <html lang="en" className={`${orbitron.variable} ${rajdhani.variable}`}>
             <body className="font-rajdhani antialiased">
-                {children}
+                <SmoothScroll>
+                    {children}
+                </SmoothScroll>
             </body>
         </html>
     );

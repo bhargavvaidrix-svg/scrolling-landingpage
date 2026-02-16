@@ -1,6 +1,6 @@
 // Configuration for the transformer sequence
 export const SEQUENCE_CONFIG = {
-    totalFrames: 100, // Updated to match available frames
+    totalFrames: 199, // Updated to match available frames
     imageFolderPath: '/images', // Frames are directly in /images
     imageFormat: 'webp', // Using WebP format
     scrollLength: '500vh', // Cinematic pacing - adjustable
@@ -32,7 +32,7 @@ export const HUD_COPY = {
 
 // Specs for the SpecsGrid component
 export const SPECS = [
-    { label: 'Total Frames', value: '100' },
+    { label: 'Total Frames', value: '200' },
     { label: 'Scroll Length', value: '500vh' },
     { label: 'Framework', value: 'Next.js 14' },
     { label: 'Animation', value: 'Framer Motion' },
