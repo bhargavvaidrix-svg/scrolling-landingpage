@@ -94,25 +94,6 @@ export default function TransformerScrollCanvas({
         const ctx = canvas.getContext('2d');
         if (!ctx) return;
 
-        const resizeCanvas = () => {
-            const dpr = window.devicePixelRatio || 1;
-            const rect = canvas.getBoundingClientRect();
-
-            // Set canvas size with device pixel ratio for high-DPI displays
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-
-            // Scale context to match
-            ctx.scale(dpr, dpr);
-
-            // Set canvas display size
-            canvas.style.width = `${rect.width}px`;
-            canvas.style.height = `${rect.height}px`;
-
-            // Redraw current frame
-            drawFrame(currentFrameRef.current);
-        };
-
         const drawFrame = (frameIndex: number) => {
             // Fall back to closest available frame if current isn't loaded yet
             let img = imagesRef.current[frameIndex];
@@ -127,8 +108,9 @@ export default function TransformerScrollCanvas({
             }
             if (!ctx || !img) return;
 
-            const canvasWidth = canvas.width / (window.devicePixelRatio || 1);
-            const canvasHeight = canvas.height / (window.devicePixelRatio || 1);
+            const dpr = window.devicePixelRatio || 1;
+            const canvasWidth = canvas.width / dpr;
+            const canvasHeight = canvas.height / dpr;
 
             // Clear canvas
             ctx.clearRect(0, 0, canvasWidth, canvasHeight);
@@ -154,6 +136,28 @@ export default function TransformerScrollCanvas({
 
             // Draw image to fill entire canvas (object-fit cover)
             ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+        };
+
+        const resizeCanvas = () => {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+
+            // Reset any previous transforms so scaling doesn't accumulate
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+
+            // Set canvas size with device pixel ratio for high-DPI displays
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+
+            // Scale context to match device pixel ratio
+            ctx.scale(dpr, dpr);
+
+            // Set canvas display size
+            canvas.style.width = `${rect.width}px`;
+            canvas.style.height = `${rect.height}px`;
+
+            // Redraw current frame with the new size
+            drawFrame(currentFrameRef.current);
         };
 
         // Initial setup
